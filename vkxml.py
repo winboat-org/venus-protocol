@@ -1016,6 +1016,9 @@ class VkRegistry:
 
     def _parse_types(self, types_elem):
         """Parse <types>."""
+        types_elem[:] = sorted(
+            types_elem, key=lambda type_elem: 'alias' in type_elem.attrib, reverse=True
+        )
         for type_elem in types_elem.iterfind('type'):
             VkType.parse_type(type_elem, self.type_table)
 
