@@ -4,9 +4,9 @@
 project(
   'venus-protocol',
   'c',
-  version: '0.1',
+  version: '1.0',
   license: 'MIT',
-  meson_version: '>=0.51.0',
+  meson_version: '>=0.54.0',
   default_options: ['buildtype=debugoptimized',
                     'warning_level=2',
                     'werror=true',
@@ -119,6 +119,8 @@ foreach basename : command_headers
   vn_protocol_renderer_outputs += 'vn_protocol_renderer_' + basename + '.h'
 endforeach
 
+not_subproj = not meson.is_subproject()
+
 vn_protocol_driver = custom_target(
   'vn_protocol_driver',
   input: ['vn_protocol.py'],
@@ -134,7 +136,7 @@ vn_protocol_driver = custom_target(
     vn_template_common_files,
     vn_template_driver_files,
   ],
-  build_by_default: true,
+  build_by_default: not_subproj,
 )
 
 vn_protocol_renderer = custom_target(
@@ -152,7 +154,21 @@ vn_protocol_renderer = custom_target(
     vn_template_common_files,
     vn_template_renderer_files,
   ],
-  build_by_default: true,
+  build_by_default: not_subproj,
 )
 
-subdir('tests')
+dep_vn_protocol_driver = declare_dependency(
+  include_directories: include_directories('.'),
+  sources: vn_protocol_driver
+)
+meson.override_dependency('vn_protocol_driver', dep_vn_protocol_driver)
+
+dep_vn_protocol_renderer = declare_dependency(
+  include_directories: include_directories('.'),
+  sources: vn_protocol_renderer
+)
+meson.override_dependency('vn_protocol_renderer', dep_vn_protocol_renderer)
+
+if not_subproj
+  subdir('tests')
+endif
