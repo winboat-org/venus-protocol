@@ -542,6 +542,9 @@ virtualization or remoting, and are not exposed to applications.
         <enum value="346"   name="VK_COMMAND_TYPE_vkCmdEndRendering2KHR_EXT"/>
         <enum               name="VK_COMMAND_TYPE_vkCmdEndRendering2EXT_EXT" alias="VK_COMMAND_TYPE_vkCmdEndRendering2KHR_EXT"/>
 
+        <comment>VK_EXT_primitive_restart_index</comment>
+        <enum value="347"   name="VK_COMMAND_TYPE_vkCmdSetPrimitiveRestartIndexEXT_EXT"/>
+
         <comment>VK_MESA_venus_protocol</comment>
         <enum value="178"   name="VK_COMMAND_TYPE_vkSetReplyCommandStreamMESA_EXT"/>
         <enum value="179"   name="VK_COMMAND_TYPE_vkSeekReplyCommandStreamMESA_EXT"/>
