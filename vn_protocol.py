@@ -1129,7 +1129,7 @@ class Gen:
             func_name += '_partial'
 
         if 'stride' in var.attrs:
-            stmt = '%s(enc, (void *)%s + %s * %c);' % (func_name, info._var_name(), var.attrs['stride'], loop.iter_name)
+            stmt = '%s(enc, (const void *)((const char *)%s + %s * %c));' % (func_name, info._var_name(), var.attrs['stride'], loop.iter_name)
         else:
             stmt = '%s(enc, %s);' % (func_name, info.func_args(False))
 
