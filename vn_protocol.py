@@ -11,7 +11,7 @@ from typing import NamedTuple
 from mako.lookup import TemplateLookup
 from mako.template import Template
 
-from vkxml import VkRegistry, VkType, VkVariable
+from vkxml import VkRegistry, VkType, VkVariable, VkExtension
 
 VN_PROTOCOL_DIR = Path(__file__).resolve().parent
 VN_TEMPLATE_DIR = VN_PROTOCOL_DIR.joinpath('templates')
@@ -396,12 +396,13 @@ class Gen:
         if not '+' in deps and not ',' in deps:
             return True if deps in VK_XML_EXTENSION_LIST else False
 
-        for or_dep in deps.split(','):
+        for or_dep in VkExtension.top_level_split(deps, ','):
             if not '+' in or_dep and or_dep in VK_XML_EXTENSION_LIST:
                 return True
 
             support_or_dep = True
-            for and_dep in or_dep.split('+'):
+            for and_dep in VkExtension.top_level_split(or_dep, '+'):
+                and_dep = and_dep.removeprefix('(').removesuffix(')')
                 if not Gen.support_type_depends(and_dep):
                     support_or_dep = False
                     break
