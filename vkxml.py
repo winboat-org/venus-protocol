@@ -849,6 +849,27 @@ class VkExtension:
         self.optional_types = {}
 
     @staticmethod
+    def top_level_split(s, delimiter):
+        """Splits a string by a delimiter only if outside parentheses."""
+        parts = []
+        cur = []
+        depth = 0
+        for char in s:
+            if char == '(':
+                depth += 1
+            elif char == ')':
+                depth -= 1
+
+            if char == delimiter and depth == 0:
+                parts.append(''.join(cur).strip())
+                cur = []
+            else:
+                cur.append(char)
+        if cur:
+            parts.append(''.join(cur).strip())
+        return parts
+
+    @staticmethod
     def filter_depends(deps):
         if not deps:
             return None
@@ -862,25 +883,30 @@ class VkExtension:
             return deps
 
         or_dep_list = []
-        for dep in deps.split(','):
-            dep = dep.strip("()")
+        for dep in VkExtension.top_level_split(deps, ','):
             # Skip the "OR" dep that only requires core version
             if not '+' in dep and dep.startswith('VK_VERSION'):
                 continue
 
             and_dep_list = []
-            for and_dep in dep.split('+'):
-                and_dep = and_dep.strip("()")
+            for and_dep in VkExtension.top_level_split(dep, '+'):
+                and_dep = and_dep.removeprefix('(').removesuffix(')')
                 filtered_sub_dep = VkExtension.filter_depends(and_dep)
                 if filtered_sub_dep:
                     and_dep_list.append(filtered_sub_dep)
 
             if and_dep_list:
-                or_dep_list.append('+'.join(and_dep_list))
+                or_dep = '+'.join(and_dep_list)
+                if len(and_dep_list) > 1:
+                    or_dep = '(' + or_dep + ')'
+                or_dep_list.append(or_dep)
             else:
                 return None
 
-        return ','.join(or_dep_list)
+        filtered_deps = ','.join(or_dep_list)
+        if len(or_dep_list) > 1:
+            filtered_deps = '(' + filtered_deps + ')'
+        return filtered_deps
 
     @staticmethod
     def parse_extension(elem, type_table):
