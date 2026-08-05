@@ -511,6 +511,36 @@ class Gen:
         major, minor = num.split('.')
         return 'VK_API_VERSION_' + major + '_' + minor
 
+    def build_ext_deps(self, ext_map, deps):
+        ext_check = 'vn_cs_renderer_protocol_has_extension'
+
+        if not '+' in deps and not ',' in deps:
+            ext = ext_map[deps]
+            return f'{ext_check}({ext.number} /* {ext.name} */)'
+
+        or_dep_list = []
+        for dep in VkExtension.top_level_split(deps, ','):
+            and_dep_list = []
+            for and_dep in VkExtension.top_level_split(dep, '+'):
+                and_dep = and_dep.removeprefix('(').removesuffix(')')
+
+                converted_and_dep = self.build_ext_deps(ext_map, and_dep)
+                if converted_and_dep:
+                    and_dep_list.append(converted_and_dep)
+
+            if and_dep_list:
+                or_dep = ' && '.join(and_dep_list)
+                if len(and_dep_list) > 1:
+                    or_dep = '(' + or_dep + ')'
+                or_dep_list.append(or_dep)
+            else:
+                return None
+
+        converted_deps = ' || '.join(or_dep_list)
+        if len(or_dep_list) > 1:
+            converted_deps = '(' + converted_deps + ')'
+        return converted_deps
+
     def get_type_condition(self, ty):
         if not self.is_driver:
             return None
@@ -560,7 +590,7 @@ class Gen:
             elif ext.optional_types:
                 for key in ext.optional_types:
                     if Gen.support_type_depends(key) and ty in ext.optional_types[key]:
-                        ext_pairs.append((ext, ext_map[key]))
+                        ext_pairs.append((ext, self.build_ext_deps(ext_map, key)))
                         cond = COND_EXT
                         break
 
@@ -572,9 +602,8 @@ class Gen:
             stmt_exts = ' && '.join(f'!{ext_check}({ext.number} /* {ext.name} */)'
                                     for ext in exts)
             stmt_ext_pairs = ' && '.join(
-                f'!({ext_check}({ext1.number} /* {ext1.name} */) && '
-                f'{ext_check}({ext2.number} /* {ext2.name} */))'
-                for ext1, ext2 in ext_pairs)
+                f'!({ext_check}({ext.number} /* {ext.name} */) && {ext_deps})'
+                for ext, ext_deps in ext_pairs)
             stmt = ' && '.join(filter(None, [stmt_exts, stmt_ext_pairs]))
         else:
             stmt = '!vn_cs_renderer_protocol_has_api_version(%s)' % api_version
