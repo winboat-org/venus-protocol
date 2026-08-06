@@ -65,10 +65,12 @@ renderer_base_headers = [
 ]
 
 command_headers = [
+  'acceleration_structure',
   'buffer',
   'buffer_view',
   'command_buffer',
   'command_pool',
+  'descriptor_heap',
   'descriptor_pool',
   'descriptor_set',
   'descriptor_set_layout',
@@ -78,6 +80,7 @@ command_headers = [
   'event',
   'fence',
   'framebuffer',
+  'host_copy',
   'image',
   'image_view',
   'instance',
@@ -92,6 +95,7 @@ command_headers = [
   'sampler_ycbcr_conversion',
   'semaphore',
   'shader_module',
+  'structs',
   'transport',
 ]
 
