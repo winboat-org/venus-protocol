@@ -535,6 +535,10 @@ virtualization or remoting, and are not exposed to applications.
         <comment>VK_EXT_attachment_feedback_loop_dynamic_state</comment>
         <enum value="329"   name="VK_COMMAND_TYPE_vkCmdSetAttachmentFeedbackLoopEnableEXT_EXT"/>
 
+        <comment>VK_KHR_copy_memory_indirect</comment>
+        <enum value="348"   name="VK_COMMAND_TYPE_vkCmdCopyMemoryIndirectKHR_EXT"/>
+        <enum value="349"   name="VK_COMMAND_TYPE_vkCmdCopyMemoryToImageIndirectKHR_EXT"/>
+
         <comment>VK_EXT_depth_clamp_control</comment>
         <enum value="330"   name="VK_COMMAND_TYPE_vkCmdSetDepthClampRangeEXT_EXT"/>
 

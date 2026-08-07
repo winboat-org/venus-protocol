@@ -127,6 +127,7 @@ VK_XML_EXTENSION_LIST = [
     'VK_KHR_calibrated_timestamps',
     'VK_KHR_compute_shader_derivatives',
     'VK_KHR_cooperative_matrix',
+    'VK_KHR_copy_memory_indirect',
     'VK_KHR_deferred_host_operations',
     'VK_KHR_depth_clamp_zero_one',
     'VK_KHR_external_fence_fd',
