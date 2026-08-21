@@ -1860,7 +1860,8 @@ class GenDispatches:
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--outdir', help='Where to write the files.',
+    parser.add_argument('--outdir', type=Path,
+                        help='Where to write the files.',
                         required=True)
     parser.add_argument('--banner', help='Path to the banner file.')
     parser.add_argument('--renderer',
@@ -1909,7 +1910,7 @@ def generate_base_headers(tmpl_loader, generators, base_headers, banner, outdir)
     for cls, name in base_headers:
         generator = generators[cls]
         template = tmpl_loader.get_template(name)
-        output = Path(outdir).joinpath('vn_protocol_' + name)
+        output = outdir.joinpath('vn_protocol_' + name)
         with open(output, 'wb') as f:
             f.write(banner)
             f.write(generator.generate(template))
@@ -1917,7 +1918,7 @@ def generate_base_headers(tmpl_loader, generators, base_headers, banner, outdir)
 def generate_command_headers(tmpl_loader, generator, variant, banner, outdir):
     template = tmpl_loader.get_template(variant + '_commands.h')
     for group in generator.groups:
-        output = Path(outdir).joinpath('vn_protocol_%s_%s.h' % (variant, group.name))
+        output = outdir.joinpath('vn_protocol_%s_%s.h' % (variant, group.name))
         with open(output, 'wb') as f:
             f.write(banner)
             f.write(generator.generate(template, group))
@@ -1972,7 +1973,7 @@ def main():
 
     # generate a header that includes all other headers
     template = tmpl_loader.get_template(variant + '.h')
-    output = Path(args.outdir).joinpath('vn_protocol_%s.h' % variant)
+    output = args.outdir.joinpath('vn_protocol_%s.h' % variant)
     with open(output, 'wb') as f:
         template_filenames = [hdr[1] for hdr in base_headers]
         template_filenames.extend(['%s_%s.h' % (variant, name) for name in
