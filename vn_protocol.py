@@ -16,12 +16,6 @@ from vkxml import VkRegistry, VkType, VkVariable, VkExtension
 VN_PROTOCOL_DIR = Path(__file__).resolve().parent
 VN_TEMPLATE_DIR = VN_PROTOCOL_DIR.joinpath('templates')
 
-VN_PROTOCOL_VK_XML = VN_PROTOCOL_DIR.joinpath('xmls/vk.xml')
-VN_PROTOCOL_PRIVATE_XMLS = [
-    VN_PROTOCOL_DIR.joinpath('xmls/VK_EXT_command_serialization.xml'),
-    VN_PROTOCOL_DIR.joinpath('xmls/VK_MESA_venus_protocol.xml'),
-]
-
 # This is bumped whenever a backward-incompatible change is made, and please
 # ensure to clean up all the existing WAs before bumping this up.
 VN_WIRE_FORMAT_VERSION = 1
@@ -1928,11 +1922,20 @@ def generate_command_headers(tmpl_loader, generator, variant, banner, outdir):
             f.write(banner)
             f.write(generator.generate(template, group))
 
+def get_vk_xmls(srcdir):
+    vk_xml = srcdir.joinpath('xmls/vk.xml')
+    private_xmls = [
+        srcdir.joinpath('xmls/VK_EXT_command_serialization.xml'),
+        srcdir.joinpath('xmls/VK_MESA_venus_protocol.xml'),
+    ]
+    return vk_xml, private_xmls
+
 def main():
     args = get_args()
 
     tmpl_loader = TemplateLoader(VN_TEMPLATE_DIR)
-    reg = VkRegistry.parse(VN_PROTOCOL_VK_XML, VN_PROTOCOL_PRIVATE_XMLS)
+    vk_xml, private_xmls = get_vk_xmls(VN_PROTOCOL_DIR)
+    reg = VkRegistry.parse(vk_xml, private_xmls)
     gen = Gen(not args.renderer, reg)
     generators = get_generators(gen)
 

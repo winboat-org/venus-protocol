@@ -10,7 +10,7 @@ VN_PROTOCOL_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(VN_PROTOCOL_DIR))
 
 from vkxml import VkRegistry
-from vn_protocol import VK_XML_EXTENSION_LIST, VN_PROTOCOL_VK_XML, VN_PROTOCOL_PRIVATE_XMLS, Gen
+from vn_protocol import VK_XML_EXTENSION_LIST, get_vk_xmls, Gen
 
 class Command:
     def __init__(self, ty):
@@ -100,7 +100,8 @@ def print_commands(name, groups):
     print('    </enums>')
 
 def main():
-    reg = VkRegistry.parse(VN_PROTOCOL_VK_XML, VN_PROTOCOL_PRIVATE_XMLS)
+    vk_xml, private_xmls = get_vk_xmls(VN_PROTOCOL_DIR)
+    reg = VkRegistry.parse(vk_xml, private_xmls)
 
     groups = get_commands(reg)
 
