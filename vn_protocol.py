@@ -13,9 +13,6 @@ from mako.template import Template
 
 from vkxml import VkRegistry, VkType, VkVariable, VkExtension
 
-VN_PROTOCOL_DIR = Path(__file__).resolve().parent
-VN_TEMPLATE_DIR = VN_PROTOCOL_DIR.joinpath('templates')
-
 # This is bumped whenever a backward-incompatible change is made, and please
 # ensure to clean up all the existing WAs before bumping this up.
 VN_WIRE_FORMAT_VERSION = 1
@@ -1860,6 +1857,9 @@ class GenDispatches:
 
 def get_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--srcdir', type=Path,
+                        default=Path(__file__).parent,
+                        help='Path to venus-protocol source directory.')
     parser.add_argument('--outdir', type=Path,
                         help='Where to write the files.',
                         required=True)
@@ -1934,8 +1934,8 @@ def get_vk_xmls(srcdir):
 def main():
     args = get_args()
 
-    tmpl_loader = TemplateLoader(VN_TEMPLATE_DIR)
-    vk_xml, private_xmls = get_vk_xmls(VN_PROTOCOL_DIR)
+    tmpl_loader = TemplateLoader(args.srcdir.joinpath('templates'))
+    vk_xml, private_xmls = get_vk_xmls(args.srcdir)
     reg = VkRegistry.parse(vk_xml, private_xmls)
     gen = Gen(not args.renderer, reg)
     generators = get_generators(gen)
