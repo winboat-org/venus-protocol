@@ -13,11 +13,11 @@ vn_sizeof_${ty.name}_pnext${variant}(const void *val)
     next_types, skipped_types = GEN.get_chain(ty)
 %>\
 % if next_types:
-    const VkBaseInStructure *pnext = val;
+    const void *pnext = val;
     size_t size = 0;
 
     while (pnext) {
-        switch ((int32_t)pnext->sType) {
+        switch ((int32_t)(*(const VkStructureType *)pnext)) {
 %   for next_ty in next_types:
 <%
         ty_cond = GEN.get_type_condition(next_ty)
@@ -28,9 +28,9 @@ vn_sizeof_${ty.name}_pnext${variant}(const void *val)
                 break;
 %       endif
             size += vn_sizeof_simple_pointer(pnext);
-            size += vn_sizeof_VkStructureType(&pnext->sType);
+            size += vn_sizeof_VkStructureType(pnext);
             size += vn_sizeof_${ty.name}_pnext${variant}(((const ${next_ty.name} *)pnext)->pNext);
-            size += vn_sizeof_${next_ty.name}_self${variant}((const ${next_ty.name} *)pnext);
+            size += vn_sizeof_${next_ty.name}_self${variant}(pnext);
             return size;
 %   endfor
 %   for skipped_ty in skipped_types:
@@ -40,7 +40,7 @@ vn_sizeof_${ty.name}_pnext${variant}(const void *val)
             /* ignore unknown/unsupported struct */
             break;
         }
-        pnext = pnext->pNext;
+        memcpy(&pnext, (const char *)pnext + offsetof(VkBaseInStructure, pNext), sizeof(pnext));
     }
 
 % else:
@@ -58,10 +58,10 @@ vn_encode_${ty.name}_pnext${variant}(struct vn_cs_encoder *enc, const void *val)
     next_types, skipped_types = GEN.get_chain(ty)
 %>\
 % if next_types:
-    const VkBaseInStructure *pnext = val;
+    const void *pnext = val;
 
     while (pnext) {
-        switch ((int32_t)pnext->sType) {
+        switch ((int32_t)(*(const VkStructureType *)pnext)) {
 %   for next_ty in next_types:
 <%
         ty_cond = GEN.get_type_condition(next_ty)
@@ -72,9 +72,9 @@ vn_encode_${ty.name}_pnext${variant}(struct vn_cs_encoder *enc, const void *val)
                 break;
 %       endif
             vn_encode_simple_pointer(enc, pnext);
-            vn_encode_VkStructureType(enc, &pnext->sType);
+            vn_encode_VkStructureType(enc, pnext);
             vn_encode_${ty.name}_pnext${variant}(enc, ((const ${next_ty.name} *)pnext)->pNext);
-            vn_encode_${next_ty.name}_self${variant}(enc, (const ${next_ty.name} *)pnext);
+            vn_encode_${next_ty.name}_self${variant}(enc, pnext);
             return;
 %   endfor
 %   for skipped_ty in skipped_types:
@@ -84,7 +84,7 @@ vn_encode_${ty.name}_pnext${variant}(struct vn_cs_encoder *enc, const void *val)
             /* ignore unknown/unsupported struct */
             break;
         }
-        pnext = pnext->pNext;
+        memcpy(&pnext, (const char *)pnext + offsetof(VkBaseInStructure, pNext), sizeof(pnext));
     }
 
 % else:
@@ -102,7 +102,7 @@ vn_decode_${ty.name}_pnext(struct vn_cs_decoder *dec, const void *val)
     next_types, skipped_types = GEN.get_chain(ty)
 %>\
 % if next_types:
-    VkBaseOutStructure *pnext = (VkBaseOutStructure *)val;
+    void *pnext = (VkBaseOutStructure *)val;
     VkStructureType stype;
 
     if (!vn_decode_simple_pointer(dec))
@@ -111,17 +111,17 @@ vn_decode_${ty.name}_pnext(struct vn_cs_decoder *dec, const void *val)
     vn_decode_VkStructureType(dec, &stype);
     while (true) {
         assert(pnext);
-        if (pnext->sType == stype)
+        if (*(const VkStructureType *)pnext == stype)
             break;
 
-        pnext = pnext->pNext;
+        memcpy(&pnext, (const char *)pnext + offsetof(VkBaseOutStructure, pNext), sizeof(pnext));
     }
 
-    switch ((int32_t)pnext->sType) {
+    switch ((int32_t)(*(const VkStructureType *)pnext)) {
 %   for next_ty in next_types:
     case ${next_ty.s_type}:
         vn_decode_${ty.name}_pnext(dec, ((${next_ty.name} *)pnext)->pNext);
-        vn_decode_${next_ty.name}_self(dec, (${next_ty.name} *)pnext);
+        vn_decode_${next_ty.name}_self(dec, pnext);
         break;
 %   endfor
 %   for skipped_ty in skipped_types:
@@ -147,7 +147,7 @@ vn_decode_${ty.name}_pnext${variant}_temp(struct vn_cs_decoder *dec)
     next_types, skipped_types = GEN.get_chain(ty)
 %>\
 % if next_types:
-    VkBaseOutStructure *pnext;
+    void *pnext;
     VkStructureType stype;
 
     if (!vn_decode_simple_pointer(dec))
@@ -159,9 +159,9 @@ vn_decode_${ty.name}_pnext${variant}_temp(struct vn_cs_decoder *dec)
     case ${next_ty.s_type}:
         pnext = vn_cs_decoder_alloc_temp(dec, sizeof(${next_ty.name}));
         if (pnext) {
-            pnext->sType = stype;
+            ((${next_ty.name} *)pnext)->sType = stype;
             ((${next_ty.name} *)pnext)->pNext = vn_decode_${ty.name}_pnext${variant}_temp(dec);
-            vn_decode_${next_ty.name}_self${variant}_temp(dec, (${next_ty.name} *)pnext);
+            vn_decode_${next_ty.name}_self${variant}_temp(dec, pnext);
         }
         break;
 %   endfor
@@ -255,15 +255,15 @@ ${struct.vn_replace_struct_handle_body(ty, '_self')}\
 </%def>
 
 <%def name="vn_replace_chain_handle_body(ty)">\
-    struct VkBaseOutStructure *pnext = (struct VkBaseOutStructure *)val;
+    void *pnext = val;
 <%
     next_types, skipped_types = GEN.get_chain(ty)
 %>
     do {
-        switch ((int32_t)pnext->sType) {
+        switch ((int32_t)(*(const VkStructureType *)pnext)) {
 % for next_ty in [ty] + next_types:
         case ${next_ty.s_type}:
-            vn_replace_${next_ty.name}_handle_self((${next_ty.name} *)pnext);
+            vn_replace_${next_ty.name}_handle_self(pnext);
             break;
 % endfor
 % for skipped_ty in skipped_types:
@@ -273,6 +273,6 @@ ${struct.vn_replace_struct_handle_body(ty, '_self')}\
             /* ignore unknown/unsupported struct */
             break;
         }
-        pnext = pnext->pNext;
+        memcpy(&pnext, (const char *)pnext + offsetof(VkBaseOutStructure, pNext), sizeof(pnext));
     } while (pnext);
 </%def>
