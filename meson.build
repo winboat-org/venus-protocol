@@ -15,6 +15,14 @@ project(
 
 py = import('python').find_installation('python3', modules: ['mako'])
 
+pkg = import('pkgconfig')
+pkg.generate(
+  name: meson.project_name(),
+  description: 'Venus Vulkan protocol',
+  version: meson.project_version(),
+  subdirs: [meson.project_name()],
+)
+
 vn_script_files = files(
   'vkxml.py',
   'vn_protocol.py',
@@ -141,6 +149,8 @@ vn_protocol_driver = custom_target(
     vn_template_driver_files,
   ],
   build_by_default: not_subproj,
+  install: true,
+  install_dir: get_option('includedir') / meson.project_name(),
 )
 
 vn_protocol_renderer = custom_target(
@@ -159,6 +169,8 @@ vn_protocol_renderer = custom_target(
     vn_template_renderer_files,
   ],
   build_by_default: not_subproj,
+  install: true,
+  install_dir: get_option('includedir') / meson.project_name(),
 )
 
 dep_vn_protocol_driver = declare_dependency(
