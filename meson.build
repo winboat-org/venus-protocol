@@ -149,7 +149,7 @@ vn_protocol_driver = custom_target(
     vn_template_driver_files,
   ],
   build_by_default: not_subproj,
-  install: true,
+  install: not_subproj,
   install_dir: get_option('includedir') / meson.project_name(),
 )
 
@@ -169,7 +169,7 @@ vn_protocol_renderer = custom_target(
     vn_template_renderer_files,
   ],
   build_by_default: not_subproj,
-  install: true,
+  install: not_subproj,
   install_dir: get_option('includedir') / meson.project_name(),
 )
 
