@@ -14,14 +14,7 @@ project(
 )
 
 py = import('python').find_installation('python3', modules: ['mako'])
-
 pkg = import('pkgconfig')
-pkg.generate(
-  name: meson.project_name(),
-  description: 'Venus Vulkan protocol',
-  version: meson.project_version(),
-  subdirs: [meson.project_name()],
-)
 
 vn_script_files = files(
   'vkxml.py',
@@ -186,5 +179,12 @@ dep_vn_protocol_renderer = declare_dependency(
 meson.override_dependency('vn_protocol_renderer', dep_vn_protocol_renderer)
 
 if not_subproj
+  pkg.generate(
+    name: meson.project_name(),
+    description: 'Venus Vulkan protocol',
+    version: meson.project_version(),
+    subdirs: [meson.project_name()],
+  )
+
   subdir('tests')
 endif
