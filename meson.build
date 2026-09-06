@@ -4,7 +4,7 @@
 project(
   'venus-protocol',
   'c',
-  version: '1.1.2',
+  version: '1.1.3',
   license: 'MIT',
   meson_version: '>=0.54.0',
   default_options: ['buildtype=debugoptimized',
