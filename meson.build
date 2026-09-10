@@ -78,6 +78,7 @@ command_headers = [
   'descriptor_update_template',
   'device',
   'device_memory',
+  'device_generated_commands',
   'event',
   'fence',
   'framebuffer',

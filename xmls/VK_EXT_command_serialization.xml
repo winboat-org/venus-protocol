@@ -568,6 +568,22 @@ virtualization or remoting, and are not exposed to applications.
         <enum value="298"   name="VK_COMMAND_TYPE_vkCopyMemoryToImageMESA_EXT"/>
         <enum value="335"   name="VK_COMMAND_TYPE_vkWriteSamplerDescriptorMESA_EXT"/>
         <enum value="336"   name="VK_COMMAND_TYPE_vkWriteResourceDescriptorMESA_EXT"/>
+
+        <comment>VK_NV_framebuffer_mixed_samples with VK_EXT_extended_dynamic_state3</comment>
+        <enum value="350"   name="VK_COMMAND_TYPE_vkCmdSetCoverageModulationModeNV_EXT"/>
+        <enum value="351"   name="VK_COMMAND_TYPE_vkCmdSetCoverageModulationTableEnableNV_EXT"/>
+        <enum value="352"   name="VK_COMMAND_TYPE_vkCmdSetCoverageModulationTableNV_EXT"/>
+
+        <comment>VK_EXT_device_generated_commands</comment>
+        <enum value="353"   name="VK_COMMAND_TYPE_vkGetGeneratedCommandsMemoryRequirementsEXT_EXT"/>
+        <enum value="354"   name="VK_COMMAND_TYPE_vkCmdPreprocessGeneratedCommandsEXT_EXT"/>
+        <enum value="355"   name="VK_COMMAND_TYPE_vkCmdExecuteGeneratedCommandsEXT_EXT"/>
+        <enum value="356"   name="VK_COMMAND_TYPE_vkCreateIndirectCommandsLayoutEXT_EXT"/>
+        <enum value="357"   name="VK_COMMAND_TYPE_vkDestroyIndirectCommandsLayoutEXT_EXT"/>
+        <enum value="358"   name="VK_COMMAND_TYPE_vkCreateIndirectExecutionSetEXT_EXT"/>
+        <enum value="359"   name="VK_COMMAND_TYPE_vkDestroyIndirectExecutionSetEXT_EXT"/>
+        <enum value="360"   name="VK_COMMAND_TYPE_vkUpdateIndirectExecutionSetPipelineEXT_EXT"/>
+        <enum value="361"   name="VK_COMMAND_TYPE_vkUpdateIndirectExecutionSetShaderEXT_EXT"/>
     </enums>
 
     <enums name="VkCommandFlagBitsEXT" type="bitmask">

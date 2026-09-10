@@ -17,6 +17,13 @@
         ${GEN.sizeof_struct_member(ty, var, 'val->', False, 'size', 2)}
         break;
 % endfor
+% for tag in GEN.UNION_EMPTY_TAGS.get(ty.name, []):
+    case ${tag}:
+% endfor
+% if ty.name in GEN.UNION_EMPTY_TAGS:
+        /* This selector has no union payload. */
+        break;
+% endif
     default:
         assert(false);
         break;
@@ -38,6 +45,13 @@
         ${GEN.encode_struct_member(ty, var, 'val->', False, 2)}
         break;
 % endfor
+% for tag in GEN.UNION_EMPTY_TAGS.get(ty.name, []):
+    case ${tag}:
+% endfor
+% if ty.name in GEN.UNION_EMPTY_TAGS:
+        /* This selector has no union payload. */
+        break;
+% endif
     default:
         assert(false);
         break;
@@ -48,6 +62,12 @@
 % if ty.is_valid_union():
     ${ty.sty.name} tag;
     vn_decode_${ty.sty.name}(dec, &tag);
+% if ty.name in GEN.UNION_VALIDATE_TAGS:
+    if (tag != expected_tag) {
+        vn_cs_decoder_set_fatal(dec);
+        return;
+    }
+% endif
 % else:
     uint32_t tag;
     vn_decode_uint32_t(dec, &tag);
@@ -58,6 +78,13 @@
         ${GEN.decode_struct_member(ty, var, 'val->', False, '_temp' in variant, 2)}
         break;
 % endfor
+% for tag in GEN.UNION_EMPTY_TAGS.get(ty.name, []):
+    case ${tag}:
+% endfor
+% if ty.name in GEN.UNION_EMPTY_TAGS:
+        /* This selector has no union payload. */
+        break;
+% endif
     default:
         vn_cs_decoder_set_fatal(dec);
         break;
@@ -71,6 +98,13 @@
         ${GEN.replace_struct_member_handle(ty, var, 'val->', 2)}
         break;
 % endfor
+% for tag in GEN.UNION_EMPTY_TAGS.get(ty.name, []):
+    case ${tag}:
+% endfor
+% if ty.name in GEN.UNION_EMPTY_TAGS:
+        /* This selector has no union payload. */
+        break;
+% endif
     default:
         assert(false);
         break;

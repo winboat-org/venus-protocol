@@ -93,7 +93,11 @@ ${chain.vn_encode_chain_self(ty, variant)}
 
 <%def name="vn_decode_type(ty)">\
 static inline void
+% if ty.name in GEN.UNION_VALIDATE_TAGS:
+vn_decode_${ty.name}(struct vn_cs_decoder *dec, ${ty.name} *val, ${ty.sty.name} expected_tag)
+% else:
 vn_decode_${ty.name}(struct vn_cs_decoder *dec, ${ty.name} *val)
+% endif
 {
 % if ty.category in [ty.DEFAULT, ty.BASETYPE, ty.ENUM]:
 ${scalar.vn_decode_scalar_body(ty)}\
@@ -124,7 +128,11 @@ ${chain.vn_decode_chain_self(ty, variant)}
 
 <%def name="vn_decode_type_temp(ty)">\
 static inline void
+% if ty.name in GEN.UNION_VALIDATE_TAGS:
+vn_decode_${ty.name}_temp(struct vn_cs_decoder *dec, ${ty.name} *val, ${ty.sty.name} expected_tag)
+% else:
 vn_decode_${ty.name}_temp(struct vn_cs_decoder *dec, ${ty.name} *val)
+% endif
 {
 % if ty.category in [ty.DEFAULT, ty.BASETYPE, ty.ENUM]:
 ${scalar.vn_decode_scalar_body(ty)}\

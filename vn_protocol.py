@@ -165,6 +165,7 @@ VK_XML_EXTENSION_LIST = [
     'VK_EXT_depth_clip_enable',
     'VK_EXT_depth_range_unrestricted',
     'VK_EXT_descriptor_heap',
+    'VK_EXT_device_generated_commands',
     'VK_EXT_dynamic_rendering_unused_attachments',
     'VK_EXT_extended_dynamic_state3',
     'VK_EXT_external_memory_acquire_unmodified',
@@ -226,6 +227,7 @@ VK_XML_EXTENSION_LIST = [
     'VK_GOOGLE_user_type',
     'VK_IMG_filter_cubic',
     'VK_NV_compute_shader_derivatives',
+    'VK_NV_framebuffer_mixed_samples',
     'VK_VALVE_mutable_descriptor_type',
 ]
 
@@ -252,6 +254,27 @@ class Gen:
         'VkDeviceOrHostAddressKHR': 0,
         'VkDeviceOrHostAddressConstKHR': 0,
         'VkPipelineExecutableStatisticValueKHR': 2,
+    }
+
+    # Action tokens carry their payload in GPU memory, not in the layout union.
+    # Serialize the selector alone and never inspect the ignored data pointer.
+    # The selector is already present in the enclosing struct. Reject a wire
+    # union tag that disagrees before allocating or replacing payload handles.
+    UNION_VALIDATE_TAGS = {'VkIndirectCommandsTokenDataEXT', 'VkIndirectExecutionSetInfoEXT'}
+
+    UNION_EMPTY_TAGS = {
+        'VkIndirectCommandsTokenDataEXT': [
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_COUNT_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_COUNT_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_NV_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT',
+            'VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT',
+        ],
     }
 
     COMMAND_BLOCK_LIST = [
@@ -1178,6 +1201,9 @@ class Gen:
             info.statements.append(stmt)
             return info
 
+        if var.ty.base.name in self.UNION_VALIDATE_TAGS:
+            info.selector = var.attrs['selector']
+
         # decode array sizes
         for loop in info.loop_info:
             temp_name = 'iter_count'
@@ -1626,6 +1652,14 @@ class GenStructsAndCommands:
             'CopyAccelerationStructure',
             'CopyMemoryToAccelerationStructure',
             'WriteAccelerationStructure',
+        ],
+        'device_generated_commands': [
+            'CreateIndirectCommandsLayout',
+            'DestroyIndirectCommandsLayout',
+            'CreateIndirectExecutionSet',
+            'DestroyIndirectExecutionSet',
+            'GetGeneratedCommandsMemoryRequirements',
+            'UpdateIndirectExecutionSet',
         ],
         'descriptor_heap': [
             'WriteResourceDescriptor',

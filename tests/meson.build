@@ -27,3 +27,5 @@ vn_protocol_tests = executable(
   include_directories: ['../include',
                         '../include/vulkan'],
 )
+
+test('protocol_roundtrip', vn_protocol_tests)
